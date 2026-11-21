@@ -10,15 +10,16 @@ Built for make.fun's ["Read broken CSV files faster"](https://make.fun/bounty/cs
 input `{text, header}` — same `{columns, rows, errors}`, including its
 written broken-row policy (BOM, stray CRs, quoted fields with doubled quotes
 and embedded line breaks, junk after a closing quote, unterminated quotes,
-short/long rows) — only faster: a single-pass scanner that takes plain fields
-with `slice()` between delimiters found by `indexOf()`, so the common case
-never runs a per-character loop.
+short/long rows). It slices plain fields and normalizes escaped quotes and
+line endings within each quoted field. The quoted-field path searches for the
+closing quote, then scans only that field for line endings.
 
 ## Layout
 
 - `solve.js` — the entry: dependency-free ES module exporting `run(input)`.
-- `main.ts` — the driver the harness runs: reads `/input/cases.json`, answers
-  each case with `run()`, writes `/output/answers.json`.
+- `main.ts` — the driver the harness runs: reads `/input/cases.json` and
+  serializes each answer before parsing the next case. It writes the
+  resulting JSON array to `/output/answers.json`.
 
 ## Check locally
 
@@ -28,6 +29,5 @@ From the kit directory (this competition's kit):
 node cli/makefun.mjs grade-local --kit . --bot <path-to-this-repo> --driver process
 ```
 
-The entry passes the practice set 6/6 and runs several times faster than the
-house baseline (see the build notes). Repository total is well under the
-1 MiB cap.
+The official scorer checks all six practice cases. The process driver runs
+on the local machine, so its timing is separate from the competition heat.
